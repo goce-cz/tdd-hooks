@@ -1,11 +1,12 @@
 import { renderHook } from '@testing-library/react-hooks'
 
-import { SavingState, useAutoSave } from './use-auto-save'
+import { useAutoSave } from './use-auto-save-2'
+import { FetchState } from './use-fetch-json'
 import { latency } from '../utils'
 
 const mockSuccessFetchImpl: typeof fetch = async () => {
   await latency(100)
-  return new Response()
+  return new Response('{}')
 }
 
 const mockFailureFetchImpl: typeof fetch = async () => {
@@ -57,11 +58,11 @@ describe('useAutoSave', () => {
       useAutoSave('data', 'http://fake.com', mockSuccessFetchImpl)
     )
 
-    expect(result.current).toBe(SavingState.SAVING)
+    expect(result.current).toBe(FetchState.PENDING)
 
     await waitForNextUpdate()
 
-    expect(result.current).toBe(SavingState.IDLE)
+    expect(result.current).toBe(FetchState.IDLE)
   })
 
   test('reports error state', async () => {
@@ -69,10 +70,10 @@ describe('useAutoSave', () => {
       useAutoSave('data', 'http://fake.com', mockFailureFetchImpl)
     )
 
-    expect(result.current).toBe(SavingState.SAVING)
+    expect(result.current).toBe(FetchState.PENDING)
 
     await waitForNextUpdate()
 
-    expect(result.current).toBe(SavingState.ERROR)
+    expect(result.current).toBe(FetchState.ERROR)
   })
 })
