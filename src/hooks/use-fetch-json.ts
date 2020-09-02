@@ -11,7 +11,7 @@ type ChargeReturnType<T extends (...args: any[]) => any, R> = (...args: Paramete
 type JsonFetch = ChargeReturnType<typeof fetch, Promise<void>>
 type AsyncStateTuple<T> = [T | undefined, FetchState, Error | undefined]
 
-export function useFetchJson<T> (fetchImpl = fetch): [JsonFetch, T | undefined, FetchState, Error | undefined] {
+export function useFetchJson<T> (fetchImpl = fetch): [JsonFetch, ...AsyncStateTuple<T>] {
   const [asyncState, setAsyncState] = useState<AsyncStateTuple<T>>([undefined, FetchState.IDLE, undefined])
 
   const execute = useCallback<JsonFetch>(
@@ -34,5 +34,5 @@ export function useFetchJson<T> (fetchImpl = fetch): [JsonFetch, T | undefined, 
     [setAsyncState, fetchImpl]
   )
 
-  return [execute, asyncState[0], asyncState[1], asyncState[2]] // [execute, ...asyncState]
+  return [execute, ...asyncState]
 }
