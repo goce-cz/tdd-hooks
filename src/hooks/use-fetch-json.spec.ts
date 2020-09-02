@@ -40,7 +40,7 @@ afterAll(() => {
 
 
 describe('useFetchJson', () => {
-  test('is idle when mounted', () => {
+  it('is idle when mounted', () => {
     const { result } = renderHook(() => useFetchJson<ResponseData>())
 
     expect(fetchSpy).not.toHaveBeenCalled()
@@ -51,7 +51,7 @@ describe('useFetchJson', () => {
 
   // --
 
-  test('initiates request on call', () => {
+  it('initiates request on call', () => {
     const { result } = renderHook(() => useFetchJson<ResponseData>())
 
     act(() => {
@@ -64,7 +64,7 @@ describe('useFetchJson', () => {
 
   // --
 
-  test('pulls data', async () => {
+  it('pulls data', async () => {
     const { result, waitForNextUpdate } = renderHook(() => useFetchJson<ResponseData>())
 
     act(() => {
@@ -78,7 +78,7 @@ describe('useFetchJson', () => {
 
   // --
 
-  test('reports error', async () => {
+  it('reports error', async () => {
     const { result, waitForNextUpdate } = renderHook(() => useFetchJson<ResponseData>())
 
     act(() => {
@@ -92,7 +92,7 @@ describe('useFetchJson', () => {
 
   // --
 
-  test('ignores preceding incomplete requests', async () => {
+  it('ignores preceding incomplete requests', async () => {
     const { result, waitForNextUpdate } = renderHook(() => useFetchJson<ResponseData>())
 
     act(() => {

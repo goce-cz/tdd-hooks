@@ -18,7 +18,7 @@ afterAll(() => {
 })
 
 describe('useAutoSave', () => {
-  test('saves on first render', async () => {
+  it('saves on first render', async () => {
     fetchSpy.mockImplementation(mockSuccessFetchImpl)
 
     renderHook(() =>
@@ -30,7 +30,7 @@ describe('useAutoSave', () => {
 
   // --
 
-  test('does not save when data do not change', async () => {
+  it('does not save when data do not change', async () => {
     fetchSpy.mockImplementation(mockSuccessFetchImpl)
 
     const { rerender } = renderHook(() =>
@@ -45,7 +45,7 @@ describe('useAutoSave', () => {
 
   // --
 
-  test('re-saves when data change', async () => {
+  it('re-saves when data change', async () => {
     fetchSpy.mockImplementation(mockSuccessFetchImpl)
 
     const props = {
@@ -63,7 +63,7 @@ describe('useAutoSave', () => {
 
   // --
 
-  test('reports saving state', async () => {
+  it('reports saving state', async () => {
     fetchSpy.mockImplementation(mockSuccessFetchImpl)
 
     const { result, waitForNextUpdate } = renderHook(() =>
@@ -79,7 +79,7 @@ describe('useAutoSave', () => {
 
   // --
 
-  test('reports error state', async () => {
+  it('reports error state', async () => {
     fetchSpy.mockImplementation(mockFailureFetchImpl)
 
     const { result, waitForNextUpdate } = renderHook(() =>

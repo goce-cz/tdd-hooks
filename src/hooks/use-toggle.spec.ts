@@ -4,7 +4,7 @@ import { renderHook } from '@testing-library/react-hooks'
 import { useToggle } from './use-toggle'
 
 describe('useToggle', () => {
-  test('returns expected types', () => {
+  it('returns expected types', () => {
     const { result } = renderHook(() => useToggle(false))
 
     expect(typeof result.current[0]).toBe('boolean')
@@ -13,7 +13,7 @@ describe('useToggle', () => {
 
   // --
 
-  test('toggles', () => {
+  it('toggles', () => {
     const { result } = renderHook(() => useToggle(false))
 
     expect(result.current[0]).toBe(false)
@@ -27,7 +27,7 @@ describe('useToggle', () => {
 
   // --
 
-  test('toggles there and back again', () => {
+  it('toggles there and back again', () => {
     const { result } = renderHook(() => useToggle(false))
 
     act(() => {
@@ -40,7 +40,7 @@ describe('useToggle', () => {
 
   // --
 
-  test('returns reference stable callback', () => {
+  it('returns reference stable callback', () => {
     const { result } = renderHook(() => useToggle(false))
     const toggleCallback = result.current[1]
 
