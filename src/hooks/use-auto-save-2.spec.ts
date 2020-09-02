@@ -25,6 +25,8 @@ describe('useAutoSave', () => {
     expect(mockFetch).toHaveBeenCalled()
   })
 
+  // --
+
   test('does not save when data do not change', async () => {
     const mockFetch = jest.fn(mockSuccessFetchImpl)
 
@@ -37,6 +39,8 @@ describe('useAutoSave', () => {
 
     expect(mockFetch).toHaveBeenCalledTimes(1)
   })
+
+  // --
 
   test('re-saves when data change', async () => {
     const mockFetch = jest.fn(mockSuccessFetchImpl)
@@ -53,6 +57,8 @@ describe('useAutoSave', () => {
     expect(mockFetch).toHaveBeenCalledTimes(2)
   })
 
+  // --
+
   test('reports saving state', async () => {
     const { result, waitForNextUpdate } = renderHook(() =>
       useAutoSave('data', 'http://fake.com', mockSuccessFetchImpl)
@@ -64,6 +70,8 @@ describe('useAutoSave', () => {
 
     expect(result.current).toBe(FetchState.IDLE)
   })
+
+  // --
 
   test('reports error state', async () => {
     const { result, waitForNextUpdate } = renderHook(() =>

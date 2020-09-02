@@ -34,6 +34,8 @@ describe('useFetchJson', () => {
     expect(result.current.slice(1)).toEqual([undefined, FetchState.IDLE, undefined])
   })
 
+  // --
+
   test('initiates request on call', () => {
     const mockFetch = jest.fn(mockFetchImpl)
     const { result } = renderHook(() => useFetchJson<ResponseData>(mockFetch))
@@ -45,6 +47,8 @@ describe('useFetchJson', () => {
     expect(mockFetch).toHaveBeenCalledTimes(1)
     expect(result.current.slice(1)).toEqual([undefined, FetchState.PENDING, undefined])
   })
+
+  // --
 
   test('pulls data', async () => {
     const { result, waitForNextUpdate } = renderHook(() => useFetchJson<ResponseData>(mockFetchImpl))
@@ -58,6 +62,8 @@ describe('useFetchJson', () => {
     expect(result.current.slice(1)).toEqual([{ hello: 'world!' }, FetchState.IDLE, undefined])
   })
 
+  // --
+
   test('reports error', async () => {
     const { result, waitForNextUpdate } = renderHook(() => useFetchJson<ResponseData>(mockFetchImpl))
 
@@ -69,6 +75,8 @@ describe('useFetchJson', () => {
 
     expect(result.current.slice(1)).toEqual([undefined, FetchState.ERROR, new Error('Whoops')])
   })
+
+  // --
 
   test('ignores preceding incomplete requests', async () => {
     const mockFetch = jest.fn(mockFetchImpl)
@@ -90,5 +98,4 @@ describe('useFetchJson', () => {
 
     await expect(waitForNextUpdate({timeout: 200})).rejects.toThrow('Timed out in waitForNextUpdate after 200ms.')
   })
-
 })

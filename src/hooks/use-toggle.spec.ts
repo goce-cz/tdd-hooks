@@ -11,6 +11,8 @@ describe('useToggle', () => {
     expect(typeof result.current[1]).toBe('function')
   })
 
+  // --
+
   test('toggles', () => {
     const { result } = renderHook(() => useToggle(false))
 
@@ -23,6 +25,8 @@ describe('useToggle', () => {
     expect(result.current[0]).toBe(true)
   })
 
+  // --
+
   test('toggles there and back again', () => {
     const { result } = renderHook(() => useToggle(false))
 
@@ -33,6 +37,8 @@ describe('useToggle', () => {
 
     expect(result.current[0]).toBe(false)
   })
+
+  // --
 
   test('returns reference stable callback', () => {
     const { result } = renderHook(() => useToggle(false))
