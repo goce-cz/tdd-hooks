@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export enum FetchState {
   IDLE = 'IDLE',
@@ -13,22 +13,40 @@ type AsyncStateTuple<T> = [T | undefined, FetchState, Error | undefined]
 
 export function useFetchJson<T> (fetchImpl = fetch): [JsonFetch, ...AsyncStateTuple<T>] {
   const [asyncState, setAsyncState] = useState<AsyncStateTuple<T>>([undefined, FetchState.IDLE, undefined])
+  const lastTokenRef = useRef({})
+
+  useEffect(
+    () => {
+      return () => {
+        lastTokenRef.current = {}
+      }
+    },
+    []
+  )
 
   const execute = useCallback<JsonFetch>(
     async (...fetchArgs) => {
+      const token = {}
+      lastTokenRef.current = token
       setAsyncState(([value]) => [value, FetchState.PENDING, undefined])
       try {
         const response = await fetchImpl(...fetchArgs)
 
         if (response.ok) {
           const json = await response.json()
-          setAsyncState([json, FetchState.IDLE, undefined])
+          if(lastTokenRef.current === token) {
+            setAsyncState([json, FetchState.IDLE, undefined])
+          }
         } else {
-          const error = new Error(`HTTP ${response.status} ${response.statusText}`)
-          setAsyncState(([value]) => [value, FetchState.ERROR, error])
+          if(lastTokenRef.current === token) {
+            const error = new Error(`HTTP ${response.status} ${response.statusText}`)
+            setAsyncState(([value]) => [value, FetchState.ERROR, error])
+          }
         }
       } catch (error) {
-        setAsyncState(([value]) => [value, FetchState.ERROR, error])
+        if(lastTokenRef.current === token) {
+          setAsyncState(([value]) => [value, FetchState.ERROR, error])
+        }
       }
     },
     [setAsyncState, fetchImpl]
