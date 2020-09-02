@@ -1,66 +1,72 @@
 import { renderHook } from '@testing-library/react-hooks'
 
 import { SavingState, useAutoSave } from './use-auto-save'
-import { latency } from '../utils'
+import { FetchSpy, mockFailureFetchImpl, mockSuccessFetchImpl } from '../utils'
 
-const mockSuccessFetchImpl: typeof fetch = async () => {
-  await latency(100)
-  return new Response()
-}
+let fetchSpy: FetchSpy
+beforeAll(() => {
+  fetchSpy = jest.spyOn(global, 'fetch')
+})
 
-const mockFailureFetchImpl: typeof fetch = async () => {
-  await latency(100)
-  throw new Error('Whoops')
-}
+afterEach(() => {
+  fetchSpy.mockClear()
+})
+
+afterAll(() => {
+  fetchSpy.mockRestore()
+})
 
 describe('useAutoSave', () => {
   test('saves on first render', async () => {
-    const mockFetch = jest.fn(mockSuccessFetchImpl)
+    fetchSpy.mockImplementation(mockSuccessFetchImpl)
 
     renderHook(() =>
-      useAutoSave('data', 'http://fake.com', mockFetch)
+      useAutoSave('data', 'http://fake.com')
     )
 
-    expect(mockFetch).toHaveBeenCalled()
+    expect(fetchSpy).toHaveBeenCalled()
   })
 
   // --
 
   test('does not save when data do not change', async () => {
-    const mockFetch = jest.fn(mockSuccessFetchImpl)
+    fetchSpy.mockImplementation(mockSuccessFetchImpl)
 
     const { rerender } = renderHook(() =>
-      useAutoSave('data', 'http://fake.com', mockFetch)
+      useAutoSave('data', 'http://fake.com')
     )
-    expect(mockFetch).toHaveBeenCalled()
+    expect(fetchSpy).toHaveBeenCalled()
 
     rerender()
 
-    expect(mockFetch).toHaveBeenCalledTimes(1)
+    expect(fetchSpy).toHaveBeenCalledTimes(1)
   })
 
   // --
 
   test('re-saves when data change', async () => {
-    const mockFetch = jest.fn(mockSuccessFetchImpl)
+    fetchSpy.mockImplementation(mockSuccessFetchImpl)
+
     const props = {
       data: 'data'
     }
     const { rerender } = renderHook(() =>
-      useAutoSave(props.data, 'http://fake.com', mockFetch)
+      useAutoSave(props.data, 'http://fake.com')
     )
 
     props.data = 'data2'
     rerender()
 
-    expect(mockFetch).toHaveBeenCalledTimes(2)
+    expect(fetchSpy).toHaveBeenCalledTimes(2)
   })
 
   // --
 
   test('reports saving state', async () => {
+    fetchSpy.mockImplementation(mockSuccessFetchImpl)
+
     const { result, waitForNextUpdate } = renderHook(() =>
-      useAutoSave('data', 'http://fake.com', mockSuccessFetchImpl)
+      useAutoSave('data', 'http://fake.com')
     )
 
     expect(result.current).toBe(SavingState.SAVING)
@@ -73,8 +79,10 @@ describe('useAutoSave', () => {
   // --
 
   test('reports error state', async () => {
+    fetchSpy.mockImplementation(mockFailureFetchImpl)
+
     const { result, waitForNextUpdate } = renderHook(() =>
-      useAutoSave('data', 'http://fake.com', mockFailureFetchImpl)
+      useAutoSave('data', 'http://fake.com')
     )
 
     expect(result.current).toBe(SavingState.SAVING)

@@ -11,7 +11,7 @@ type ChargeReturnType<T extends (...args: any[]) => any, R> = (...args: Paramete
 type JsonFetch = ChargeReturnType<typeof fetch, Promise<void>>
 type AsyncStateTuple<T> = [T | undefined, FetchState, Error | undefined]
 
-export function useFetchJson<T> (fetchImpl = fetch): [JsonFetch, ...AsyncStateTuple<T>] {
+export function useFetchJson<T> (): [JsonFetch, ...AsyncStateTuple<T>] {
   const [asyncState, setAsyncState] = useState<AsyncStateTuple<T>>([undefined, FetchState.IDLE, undefined])
   const lastTokenRef = useRef({})
 
@@ -30,7 +30,7 @@ export function useFetchJson<T> (fetchImpl = fetch): [JsonFetch, ...AsyncStateTu
       lastTokenRef.current = token
       setAsyncState(([value]) => [value, FetchState.PENDING, undefined])
       try {
-        const response = await fetchImpl(...fetchArgs)
+        const response = await fetch(...fetchArgs)
 
         if (response.ok) {
           const json = await response.json()
@@ -49,7 +49,7 @@ export function useFetchJson<T> (fetchImpl = fetch): [JsonFetch, ...AsyncStateTu
         }
       }
     },
-    [setAsyncState, fetchImpl]
+    [setAsyncState]
   )
 
   return [execute, ...asyncState]

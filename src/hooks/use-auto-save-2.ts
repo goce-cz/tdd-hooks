@@ -2,8 +2,8 @@ import { useEffect } from 'react'
 
 import { useFetchJson } from './use-fetch-json'
 
-export function useAutoSave (data: any, url: string, customFetch = fetch) {
-  const [save, , state]  = useFetchJson(customFetch)
+export function useAutoSave (data: any, url: string) {
+  const [save, , state]  = useFetchJson()
 
   useEffect(
     () => {

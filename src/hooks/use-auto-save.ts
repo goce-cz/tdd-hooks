@@ -6,14 +6,14 @@ export enum SavingState {
   ERROR = 'ERROR'
 }
 
-export function useAutoSave (data: any, url: string, customFetch = fetch) {
+export function useAutoSave (data: any, url: string) {
   const [state, setState] = useState(SavingState.IDLE)
 
   const save = useCallback(
     async (dataToSave: any) => {
       setState(SavingState.SAVING)
       try {
-        await customFetch(
+        await fetch(
           url,
           {
             method: 'POST',
@@ -26,7 +26,7 @@ export function useAutoSave (data: any, url: string, customFetch = fetch) {
         setState(SavingState.ERROR)
       }
     },
-    [setState, url, customFetch]
+    [setState, url]
   )
 
   useEffect(
