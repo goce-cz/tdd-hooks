@@ -1,12 +1,12 @@
 import { renderHook } from '@testing-library/react-hooks'
 
-import { useAutoSave } from './use-auto-save-2'
 import { FetchState } from './use-fetch-json'
-import { FetchSpy, mockFailureFetchImpl, mockSuccessFetchImpl } from '../utils'
+import { useAutoSave } from './use-auto-save-2'
+import { FetchSpy, mockFetch } from '../utils/mock-fetch'
 
 let fetchSpy: FetchSpy
 beforeAll(() => {
-  fetchSpy = jest.spyOn(global, 'fetch')
+  fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(mockFetch)
 })
 
 afterEach(() => {
@@ -19,10 +19,8 @@ afterAll(() => {
 
 describe('useAutoSave', () => {
   it('saves on first render', async () => {
-    fetchSpy.mockImplementation(mockSuccessFetchImpl)
-
     renderHook(() =>
-      useAutoSave('data', 'http://fake.com')
+      useAutoSave('data', 'http://respond/in/100/ms/with/204')
     )
 
     expect(fetchSpy).toHaveBeenCalled()
@@ -31,10 +29,8 @@ describe('useAutoSave', () => {
   // --
 
   it('does not save when data do not change', async () => {
-    fetchSpy.mockImplementation(mockSuccessFetchImpl)
-
     const { rerender } = renderHook(() =>
-      useAutoSave('data', 'http://fake.com')
+      useAutoSave('data', 'http://respond/in/100/ms/with/204')
     )
     expect(fetchSpy).toHaveBeenCalled()
 
@@ -46,13 +42,11 @@ describe('useAutoSave', () => {
   // --
 
   it('re-saves when data change', async () => {
-    fetchSpy.mockImplementation(mockSuccessFetchImpl)
-
     const props = {
       data: 'data'
     }
     const { rerender } = renderHook(() =>
-      useAutoSave(props.data, 'http://fake.com')
+      useAutoSave(props.data, 'http://respond/in/100/ms/with/204')
     )
 
     props.data = 'data2'
@@ -64,10 +58,8 @@ describe('useAutoSave', () => {
   // --
 
   it('reports saving state', async () => {
-    fetchSpy.mockImplementation(mockSuccessFetchImpl)
-
     const { result, waitForNextUpdate } = renderHook(() =>
-      useAutoSave('data', 'http://fake.com')
+      useAutoSave('data', 'http://respond/in/100/ms/with/204')
     )
 
     expect(result.current).toBe(FetchState.PENDING)
@@ -80,10 +72,8 @@ describe('useAutoSave', () => {
   // --
 
   it('reports error state', async () => {
-    fetchSpy.mockImplementation(mockFailureFetchImpl)
-
     const { result, waitForNextUpdate } = renderHook(() =>
-      useAutoSave('data', 'http://fake.com')
+      useAutoSave('data', 'http://respond/in/100/ms/with/403')
     )
 
     expect(result.current).toBe(FetchState.PENDING)

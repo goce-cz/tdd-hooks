@@ -1,32 +1,16 @@
 import { act, renderHook } from '@testing-library/react-hooks'
 
 import { FetchState, useFetchJson } from './use-fetch-json'
-import { FetchSpy, latency } from '../utils'
+import { FetchSpy, mockFetch } from '../utils/mock-fetch'
+import { latency } from '../utils/latency'
 
 interface ResponseData {
   hello: string
 }
 
-const mockUrlPattern = /https?:\/\/(fail|succeed)\/in\/([0-9]+)\/ms\/with\/(.+)/
-
-const mockFetchImpl: typeof fetch = async (url) => {
-  const matches = mockUrlPattern.exec(url as string)
-  if (!matches) {
-    throw Error('Invalid mock URL syntax')
-  }
-  const [, result, delay, data] = matches
-  await new Promise(resolve => setTimeout(resolve, Number(delay)))
-
-  if (result === 'succeed') {
-    return new Response(data)
-  } else {
-    throw new Error(data)
-  }
-}
-
 let fetchSpy: FetchSpy
 beforeAll(() => {
-  fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(mockFetchImpl)
+  fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(mockFetch)
 })
 
 afterEach(() => {
@@ -55,7 +39,7 @@ describe('useFetchJson', () => {
     const { result } = renderHook(() => useFetchJson<ResponseData>())
 
     act(() => {
-      result.current[0]('http://succeed/in/100/ms/with/"anything"')
+      result.current[0]('http://respond/in/100/ms/with/204')
     })
 
     expect(fetchSpy).toHaveBeenCalledTimes(1)
@@ -68,7 +52,7 @@ describe('useFetchJson', () => {
     const { result, waitForNextUpdate } = renderHook(() => useFetchJson<ResponseData>())
 
     act(() => {
-      result.current[0]('http://succeed/in/200/ms/with/{"hello":"world!"}')
+      result.current[0]('http://respond/in/200/ms/with/200/{"hello":"world!"}')
     })
 
     await waitForNextUpdate()
@@ -78,7 +62,21 @@ describe('useFetchJson', () => {
 
   // --
 
-  it('reports error', async () => {
+  it('reports HTTP error', async () => {
+    const { result, waitForNextUpdate } = renderHook(() => useFetchJson<ResponseData>())
+
+    act(() => {
+      result.current[0]('http://respond/in/100/ms/with/500')
+    })
+
+    await waitForNextUpdate()
+
+    expect(result.current.slice(1)).toEqual([undefined, FetchState.ERROR, new Error('HTTP 500 Internal Server Error')])
+  })
+
+  // --
+
+  it('reports generic error', async () => {
     const { result, waitForNextUpdate } = renderHook(() => useFetchJson<ResponseData>())
 
     act(() => {
@@ -96,13 +94,13 @@ describe('useFetchJson', () => {
     const { result, waitForNextUpdate } = renderHook(() => useFetchJson<ResponseData>())
 
     act(() => {
-      result.current[0]('http://succeed/in/200/ms/with/"old"')
+      result.current[0]('http://respond/in/200/ms/with/200/"old"')
     })
 
     await latency(50)
 
     act(() => {
-      result.current[0]('http://succeed/in/100/ms/with/"new"')
+      result.current[0]('http://respond/in/100/ms/with/200/"new"')
     })
 
     await waitForNextUpdate()
