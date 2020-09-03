@@ -1,6 +1,7 @@
 import React, { ChangeEventHandler, useState } from 'react'
 
-import { SavingState, useAutoSave } from './hooks/use-auto-save'
+import { useAutoSave } from './hooks/use-auto-save-2'
+import { FetchState } from './hooks/use-fetch-json'
 
 export function AutoSaveInput() {
   const [value, setValue] = useState('')
@@ -11,8 +12,8 @@ export function AutoSaveInput() {
   return (
     <label>
       Type to save: <input onChange={handleChange} value={value} />
-      {state === SavingState.SAVING && 'saving ...'}
-      {state === SavingState.ERROR && 'ERROR !'}
+      {state === FetchState.PENDING && 'saving ...'}
+      {state === FetchState.ERROR && 'ERROR !'}
     </label>
   )
 }

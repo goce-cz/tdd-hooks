@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
 
-import { useFetchJson } from './use-fetch-json'
+import { FetchState, useFetchJson } from './use-fetch-json'
+import { useBusy } from './use-busy'
 
 export function useAutoSave (data: any, url: string) {
-  const [save, , state]  = useFetchJson()
+  const [save, , state] = useFetchJson()
 
   useEffect(
     () => {
@@ -17,5 +18,13 @@ export function useAutoSave (data: any, url: string) {
     },
     [save, data, url]
   )
+
+  const [, setBusy] = useBusy()
+
+  useEffect(
+    () => setBusy(state === FetchState.PENDING),
+    [setBusy, state]
+  )
+
   return state
 }

@@ -1,15 +1,19 @@
-import React from 'react';
+import React from 'react'
 import './App.css'
 import { AsciiCheckbox } from './AsciiCheckbox'
 import { AutoSaveInput } from './AutoSaveInput'
+import { BusyProvider } from './hooks/use-busy'
+import { BusySignal } from './BusySignal'
 
-function App() {
+function App () {
   return (
-    <div>
-      <div><AsciiCheckbox/></div>
-      <div><AutoSaveInput/></div>
-    </div>
-  );
+    <BusyProvider>
+      <BusySignal>
+        <div><AsciiCheckbox/></div>
+        <div><AutoSaveInput/></div>
+      </BusySignal>
+    </BusyProvider>
+  )
 }
 
 export default App;

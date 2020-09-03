@@ -17,7 +17,7 @@ afterAll(() => {
 })
 
 describe('useAutoSave', () => {
-  it('saves on first render', async () => {
+  it('saves on first render', () => {
     renderHook(() =>
       useAutoSave('data', 'http://respond/in/100/ms/with/204')
     )
@@ -27,7 +27,7 @@ describe('useAutoSave', () => {
 
   // --
 
-  it('does not save when data do not change', async () => {
+  it('does not save when data do not change', () => {
     const { rerender } = renderHook(() =>
       useAutoSave('data', 'http://respond/in/100/ms/with/204')
     )
@@ -40,7 +40,7 @@ describe('useAutoSave', () => {
 
   // --
 
-  it('re-saves when data change', async () => {
+  it('re-saves when data change', () => {
     const props = {
       data: 'data'
     }
