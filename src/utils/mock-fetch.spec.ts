@@ -1,3 +1,5 @@
+import { describe, it, expect } from 'vitest'
+
 import { mockFetch } from './mock-fetch'
 import { stopWatch } from './stop-watch'
 

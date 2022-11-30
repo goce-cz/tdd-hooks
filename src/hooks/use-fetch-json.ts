@@ -6,7 +6,6 @@ export enum FetchState {
   ERROR = 'ERROR'
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type ChargeReturnType<T extends (...args: any[]) => any, R> = (...args: Parameters<T>) => R;
 
 type JsonFetch = ChargeReturnType<typeof fetch, Promise<void>>
@@ -44,14 +43,14 @@ export function useFetchJson<T> (): [JsonFetch, ...AsyncStateTuple<T>] {
             setAsyncState([json, FetchState.IDLE, undefined])
           }
         } else {
-          if(lastTokenRef.current === token) {
+          if (lastTokenRef.current === token) {
             const error = new Error(`HTTP ${response.status} ${response.statusText}`)
             setAsyncState(([value]) => [value, FetchState.ERROR, error])
           }
         }
       } catch (error) {
-        if(lastTokenRef.current === token) {
-          setAsyncState(([value]) => [value, FetchState.ERROR, error])
+        if (lastTokenRef.current === token) {
+          setAsyncState(([value]) => [value, FetchState.ERROR, error as Error])
         }
       }
     },

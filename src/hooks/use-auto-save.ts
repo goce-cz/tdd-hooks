@@ -13,16 +13,18 @@ export function useAutoSave (data: any, url: string) {
     async (dataToSave: any) => {
       setState(SavingState.SAVING)
       try {
-        await fetch(
+        const response = await fetch(
           url,
           {
             method: 'POST',
             body: JSON.stringify(dataToSave)
           }
         )
+        if(!response.ok) {
+          throw new Error(`server responded with HTTP ${response.status} ${response.statusText}`)
+        }
         setState(SavingState.IDLE)
       } catch (error) {
-        console.error(error)
         setState(SavingState.ERROR)
       }
     },

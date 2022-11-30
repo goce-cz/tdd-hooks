@@ -1,8 +1,10 @@
-import { act, renderHook } from '@testing-library/react-hooks'
+import { act, renderHook } from '@testing-library/react'
+import { beforeAll, vi, afterEach, afterAll, describe, it, expect } from 'vitest'
 
 import { FetchState, useFetchJson } from './use-fetch-json'
 import { FetchSpy, mockFetch } from '../utils/mock-fetch'
 import { latency } from '../utils/latency'
+import { waitUntilChanged } from '../utils/wait-until-changed'
 
 interface ResponseData {
   hello: string
@@ -10,7 +12,7 @@ interface ResponseData {
 
 let fetchSpy: FetchSpy
 beforeAll(() => {
-  fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(mockFetch)
+  fetchSpy = vi.spyOn(global, 'fetch').mockImplementation(mockFetch)
 })
 
 afterEach(() => {
@@ -35,10 +37,10 @@ describe('useFetchJson', () => {
 
   // --
 
-  it('initiates request on call', () => {
+  it('initiates request on call', async () => {
     const { result } = renderHook(() => useFetchJson<ResponseData>())
 
-    act(() => {
+    await act(() => {
       result.current[0]('http://respond/in/100/ms/with/204')
     })
 
@@ -49,13 +51,13 @@ describe('useFetchJson', () => {
   // --
 
   it('pulls data', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useFetchJson<ResponseData>())
+    const { result } = renderHook(() => useFetchJson<ResponseData>())
 
-    act(() => {
+    await act(() => {
       result.current[0]('http://respond/in/200/ms/with/200/{"hello":"world!"}')
     })
 
-    await waitForNextUpdate()
+    await waitUntilChanged(result)
 
     expect(result.current.slice(1)).toEqual([{ hello: 'world!' }, FetchState.IDLE, undefined])
   })
@@ -63,13 +65,13 @@ describe('useFetchJson', () => {
   // --
 
   it('reports HTTP error', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useFetchJson<ResponseData>())
+    const { result } = renderHook(() => useFetchJson<ResponseData>())
 
-    act(() => {
+    await act(() => {
       result.current[0]('http://respond/in/100/ms/with/500')
     })
 
-    await waitForNextUpdate()
+    await waitUntilChanged(result)
 
     expect(result.current.slice(1)).toEqual([undefined, FetchState.ERROR, new Error('HTTP 500 Internal Server Error')])
   })
@@ -77,13 +79,13 @@ describe('useFetchJson', () => {
   // --
 
   it('reports generic error', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useFetchJson<ResponseData>())
+    const { result } = renderHook(() => useFetchJson<ResponseData>())
 
-    act(() => {
+    await act(() => {
       result.current[0]('http://fail/in/100/ms/with/Whoops')
     })
 
-    await waitForNextUpdate()
+    await waitUntilChanged(result)
 
     expect(result.current.slice(1)).toEqual([undefined, FetchState.ERROR, new Error('Whoops')])
   })
@@ -91,22 +93,24 @@ describe('useFetchJson', () => {
   // --
 
   it('ignores preceding incomplete requests', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useFetchJson<ResponseData>())
+    const { result } = renderHook(() => useFetchJson<ResponseData>())
 
-    act(() => {
+    await act(() => {
       result.current[0]('http://respond/in/200/ms/with/200/"old"')
     })
 
     await latency(50)
 
-    act(() => {
+    await act(() => {
       result.current[0]('http://respond/in/100/ms/with/200/"new"')
     })
 
-    await waitForNextUpdate()
+    await waitUntilChanged(result, {timeout: 500})
 
     expect(result.current.slice(1)).toEqual(['new', FetchState.IDLE, undefined])
 
-    await expect(waitForNextUpdate({timeout: 200})).rejects.toThrow('Timed out in waitForNextUpdate after 200ms.')
+    const timedOut = vi.fn()
+    await waitUntilChanged(result, {timeout: 200, onTimeout: timedOut})
+    expect(timedOut).toHaveBeenCalled()
   })
 })

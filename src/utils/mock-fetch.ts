@@ -1,3 +1,4 @@
+import { SpyInstance, ArgumentsType } from 'vitest'
 import { getReasonPhrase } from 'http-status-codes'
 
 import { latency } from './latency'
@@ -43,4 +44,4 @@ export const mockFetch: typeof fetch = async (url, { body } = {}) => {
   throw Error('Invalid mock URL syntax')
 }
 
-export type FetchSpy = jest.SpyInstance<ReturnType<typeof fetch>, jest.ArgsType<typeof fetch>>
+export type FetchSpy = SpyInstance<ArgumentsType<typeof fetch>, ReturnType<typeof fetch>>

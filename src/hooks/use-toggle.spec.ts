@@ -1,5 +1,5 @@
-import { act } from 'react-test-renderer'
-import { renderHook } from '@testing-library/react-hooks'
+import { renderHook, act } from '@testing-library/react'
+import { describe, it, expect } from 'vitest'
 
 import { useToggle } from './use-toggle'
 
@@ -13,12 +13,12 @@ describe('useToggle', () => {
 
   // --
 
-  it('toggles', () => {
+  it('toggles', async () => {
     const { result } = renderHook(() => useToggle(false))
 
     expect(result.current[0]).toBe(false)
 
-    act(() => {
+    await act(() => {
       result.current[1]()
     })
 
@@ -27,10 +27,10 @@ describe('useToggle', () => {
 
   // --
 
-  it('toggles there and back again', () => {
+  it('toggles there and back again', async () => {
     const { result } = renderHook(() => useToggle(false))
 
-    act(() => {
+    await act(() => {
       result.current[1]()
       result.current[1]()
     })
@@ -40,11 +40,11 @@ describe('useToggle', () => {
 
   // --
 
-  it('returns reference stable callback', () => {
+  it('returns reference stable callback', async () => {
     const { result } = renderHook(() => useToggle(false))
     const toggleCallback = result.current[1]
 
-    act(() => {
+    await act(() => {
       toggleCallback()
     })
 
